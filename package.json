@@ -1,0 +1,24 @@
+{
+  "name": "puppeteer-fb-scraping",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/be320/Puppeteer-FB-Scraping.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/be320/Puppeteer-FB-Scraping/issues"
+  },
+  "homepage": "https://github.com/be320/Puppeteer-FB-Scraping#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.4",
+    "puppeteer": "^5.3.1"
+  }
+}
