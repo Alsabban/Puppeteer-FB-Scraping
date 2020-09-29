@@ -3,21 +3,21 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 const WAIT_FOR_PAGE = 5000;
-const DELAY_USER_INPUT = 2000;
-const DELAY_PW_INPUT = 1000;
+const DELAY_USER_INPUT = 500;
+const DELAY_PW_INPUT = 500;
 
 
 (async () => {
   const browser = await puppeteer.launch({headless: false});
   const context = browser.defaultBrowserContext();
-  await context.overridePermissions(process.env.LEVAK_POLICIJE, ['notifications']);
+  await context.overridePermissions(process.env.FB_PAGE, ['notifications']);
   const page = await browser.newPage();
-  await page.goto(process.env.LEVAK_POLICIJE);
+  await page.goto(process.env.FB_PAGE);
 //   await page.type('#email', process.env.FB_USER, {delay: DELAY_USER_INPUT});
 //   await page.type('#pass', process.env.FB_PW, {delay: DELAY_PW_INPUT});
 //   await page.click('#loginbutton');
 
-    
+  await delay(WAIT_FOR_PAGE);  
 
   if (await page.$('div[role="dialog"]') !== null){
     await page.waitForSelector('div[role="dialog"]');  
@@ -34,19 +34,36 @@ const DELAY_PW_INPUT = 1000;
 
   await delay(WAIT_FOR_PAGE);
 
-  const elems = await page.evaluate(() => {
-    const infos = Array.from(document.querySelectorAll(".userContentWrapper"));
+  const elems = await page.evaluate(async() => {
+
+    var postsList = [];
     
-    return infos.map(info => { 
-     const array =  info.innerText.split('\n');
-     return array.slice(3,4); 
-    });
+    var infos = Array.from(document.querySelectorAll(".userContentWrapper"));
+
+        postsList.push(infos);
+         //if (typeof window !== "undefined") {
+        setTimeout(async() => await window.scrollBy(0, window.innerHeight), 1000);
+
+        infos = Array.from(document.querySelectorAll(".userContentWrapper"));
+
+        postsList.push(infos);
+
+        return postsList.map(infoss => {
+            return  infoss.map((info)=>{
+            const array =  info.innerText.split('\n');
+            return array.slice(3,4); 
+         })    
+        });
 
   });
 
   console.log(elems);
 
+ 
+
 })();
+
+
 
 function delay(time) {
   return new Promise(function(resolve) { 
