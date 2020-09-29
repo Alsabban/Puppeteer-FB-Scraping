@@ -179,7 +179,7 @@ const DELAY_PW_INPUT = 500;
                 post.delete();
                 // console.log('Current Array ===> ', postList);
                 setTimeout(() => window.scrollBy(0, 100), 1000);
-                if(postListLength*1) await scrapData();
+                if(postList.length<50) await scrapData();  //if(postListLength*1)
                 else return postList;
               } else {
                 console.log('postList if no post found ==> ', postList);
