@@ -79,6 +79,23 @@ const DELAY_PW_INPUT = 500;
               }
             }
 
+            //get Author
+            getAuthor(){
+              try {
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    return resolve(
+                      this.post
+                        .querySelector('h5')
+                        .innerText.trim()
+                    );
+                  }, 1000);
+                });
+              } catch (error) {
+                console.log("scrap author error ===> ", error);
+              }
+            }
+
             //Retrieve the text from the post
             scrap() {
               try {
@@ -105,11 +122,11 @@ const DELAY_PW_INPUT = 500;
           const post = new Post(document);
           if (post.post) {
             await post.PressSeeMore();
-            postList.push(await post.scrap());
+            postList.push({post: await post.scrap(), author: await post.getAuthor()});
             console.log("Data now ====> ", postList);
             post.delete();
             setTimeout(() => window.scrollBy(0, 100), 1000);
-            if (postList.length < 5) await scrapData(); //if(postListLength*1)  //load 5 posts only
+            if (postList.length < 2) await scrapData(); //if(postListLength*1)  //load 5 posts only
             else return postList;
           } else {
             console.log("postList if no post found ==> ", postList);
