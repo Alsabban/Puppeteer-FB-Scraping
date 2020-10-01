@@ -84,7 +84,7 @@ const DELAY_PW_INPUT = 500;
               }
             }
 
-            //get Author
+            //get Post's Author
             getAuthor() {
               try {
                 return new Promise(resolve => {
@@ -123,12 +123,14 @@ const DELAY_PW_INPUT = 500;
           }
 
           class Comment {
+            //Comment Constructor
             constructor(post) {
               this.comment = post.post.querySelector(
                 "div > form > div > div > div > div > a"
               );
               this.post = post.post;
               var i;
+              //Loading all previous comments amd see more comments
               for (i = 0; i < 100; i++) {
                 if (this.comment !== null) this.comment.click();
                 else {
@@ -138,6 +140,7 @@ const DELAY_PW_INPUT = 500;
               }
             }
 
+            //Returning List of Comments of the post
             scrap() {
               try {
                 return new Promise(resolve => {
@@ -158,15 +161,15 @@ const DELAY_PW_INPUT = 500;
               this.comment.remove();
             }
           }
-
+          
+          //Initiallizing Post
           const post = new Post(document);
           if (post.post) {
+            //Click Seemore to get full text of post
             await post.PressSeeMore();
+            //Initiallizing Comment
             comment = new Comment(post);
-            // await comment.PressSeeMoreComments();
-            // await comment.pressMoreReplies();
-            // await comment.pressSeeMoreForAllComments();
-            //, commentList: await comment.scrap()
+            //Pushing the post, author and the comments list
             postList.push({
               post: await post.scrap(),
               author: await post.getAuthor(),
@@ -175,8 +178,8 @@ const DELAY_PW_INPUT = 500;
             console.log("Data now ====> ", postList);
             post.delete();
             setTimeout(() => window.scrollBy(0, 100), 1000);
-            if (postList.length < 10) await scrapData();
-            //if(postListLength*1)  //load 5 posts only
+            //Detertmine the number of posts you need (10)
+            if (postList.length < 10) await scrapData(); //if(postListLength*1) -> this will continue till end
             else return postList;
           } else {
             console.log("postList if no post found ==> ", postList);
