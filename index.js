@@ -53,7 +53,6 @@ const DELAY_PW_INPUT = 500;
 
           //Post Class
           class Post {
-
             //Post Constructor
             constructor(document) {
               console.log("post initiallized");
@@ -65,7 +64,13 @@ const DELAY_PW_INPUT = 500;
             PressSeeMore() {
               try {
                 return new Promise((resolve, reject) => {
-                  if (this.post && this.post.innerText.includes("See More")) {
+                  if (
+                    this.post &&
+                    this.post.innerText.includes("See More") &&
+                    this.post.querySelector(
+                      "span[class=see_more_link_inner]"
+                    ) !== null
+                  ) {
                     this.post
                       .querySelector("span[class=see_more_link_inner]")
                       .click();
@@ -80,14 +85,12 @@ const DELAY_PW_INPUT = 500;
             }
 
             //get Author
-            getAuthor(){
+            getAuthor() {
               try {
                 return new Promise(resolve => {
                   setTimeout(() => {
                     return resolve(
-                      this.post
-                        .querySelector('h5')
-                        .innerText.trim()
+                      this.post.querySelector("h5").innerText.trim()
                     );
                   }, 1000);
                 });
@@ -119,14 +122,61 @@ const DELAY_PW_INPUT = 500;
             }
           }
 
+          class Comment {
+            constructor(post) {
+              this.comment = post.post.querySelector(
+                "div > form > div > div > div > div > a"
+              );
+              this.post = post.post;
+              var i;
+              for (i = 0; i < 100; i++) {
+                if (this.comment !== null) this.comment.click();
+                else {
+                  i = 0;
+                  break;
+                }
+              }
+            }
+
+            scrap() {
+              try {
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    return resolve(
+                      [...this.post.querySelectorAll('span[dir="rtl"]')].map(
+                        item => item.innerText
+                      )
+                    );
+                  }, 1000);
+                });
+              } catch (error) {
+                console.log("scrap comments error ===> ", error);
+              }
+            }
+
+            delete() {
+              this.comment.remove();
+            }
+          }
+
           const post = new Post(document);
           if (post.post) {
             await post.PressSeeMore();
-            postList.push({post: await post.scrap(), author: await post.getAuthor()});
+            comment = new Comment(post);
+            // await comment.PressSeeMoreComments();
+            // await comment.pressMoreReplies();
+            // await comment.pressSeeMoreForAllComments();
+            //, commentList: await comment.scrap()
+            postList.push({
+              post: await post.scrap(),
+              author: await post.getAuthor(),
+              commentList: await comment.scrap()
+            });
             console.log("Data now ====> ", postList);
             post.delete();
             setTimeout(() => window.scrollBy(0, 100), 1000);
-            if (postList.length < 2) await scrapData(); //if(postListLength*1)  //load 5 posts only
+            if (postList.length < 10) await scrapData();
+            //if(postListLength*1)  //load 5 posts only
             else return postList;
           } else {
             console.log("postList if no post found ==> ", postList);
