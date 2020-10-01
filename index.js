@@ -142,6 +142,7 @@ const DELAY_PW_INPUT = 500;
               }
             }
 
+            //function for detecting elements by innertext
             contains(selector, text) {
               var elements = document.querySelectorAll(selector);
               return Array.prototype.filter.call(elements, function(element){
@@ -149,6 +150,7 @@ const DELAY_PW_INPUT = 500;
               });
             }
 
+            //translating from arabic to english 
             translate(){
               try {
                var translateButtons = this.contains('a','See Translation')
@@ -229,6 +231,7 @@ const DELAY_PW_INPUT = 500;
       return await Promise.all(postList);
     });
 
+    //Choosing which file to store data in
     const ARABIC = true;
     if(ARABIC)
     await storeDataToFile("./fbArabic.json", data);
