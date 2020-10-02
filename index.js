@@ -172,18 +172,20 @@ const DELAY_PW_INPUT = 500;
                 return new Promise(resolve => {
                   setTimeout(() => {
                     return resolve(
-                      [
-                        ...this.post.querySelectorAll(`span[dir=${language}]`)
-                      ]? [
-                        ...this.post.querySelectorAll(`span[dir=${language}]`)
-                      ].map(item => {
-                        commentCounter++;
-                        return {
-                          comment_id: commentCounter,
-                          comment: item.innerText,
-                          post_id: postCounter
-                        };
-                      }) : []
+                      [...this.post.querySelectorAll(`span[dir=${language}]`)]
+                        ? [
+                            ...this.post.querySelectorAll(
+                              `span[dir=${language}]`
+                            )
+                          ].map(item => {
+                            commentCounter++;
+                            return {
+                              comment_id: commentCounter,
+                              comment: item.innerText,
+                              post_id: postCounter
+                            };
+                          })
+                        : []
                     );
                   }, 1000);
                 });
@@ -231,7 +233,7 @@ const DELAY_PW_INPUT = 500;
             //Detertmine the number of posts you need (10)
             if (postList.length < 10) await scrapData();
             //if(postListLength*1) -> this will continue till end
-            else{
+            else {
               return {
                 posts: postList,
                 comments: commentList
