@@ -2,7 +2,7 @@
 const puppeteer = require("puppeteer");
 const dotenv = require("dotenv");
 const fs = require("fs");
-const converter = require("json-2-csv");
+const { Parser } = require("json2csv");
 dotenv.config();
 
 //GLOBAL VARIABLES
@@ -42,6 +42,9 @@ const DELAY_PW_INPUT = 500;
     //The Process of Retrieving Data
     const data = await page.evaluate(async function() {
       var postList = []; //Empty List of Posts
+      var commentList = [];
+      var commentCounter = 0;
+      var postCounter = 0;
 
       //Scraping Data Function
       async function scrapData() {
@@ -171,7 +174,16 @@ const DELAY_PW_INPUT = 500;
                     return resolve(
                       [
                         ...this.post.querySelectorAll(`span[dir=${language}]`)
-                      ].map(item => item.innerText)
+                      ]? [
+                        ...this.post.querySelectorAll(`span[dir=${language}]`)
+                      ].map(item => {
+                        commentCounter++;
+                        return {
+                          comment_id: commentCounter,
+                          comment: item.innerText,
+                          post_id: postCounter
+                        };
+                      }) : []
                     );
                   }, 1000);
                 });
@@ -188,34 +200,49 @@ const DELAY_PW_INPUT = 500;
           //Initiallizing Post
           const post = new Post(document);
           if (post.post) {
+            postCounter++;
             //Click Seemore to get full text of post
             await post.PressSeeMore();
             //Initiallizing Comment
             comment = new Comment(post);
             //Pushing the post, author and the comments list
-            var commentList = "";
-            const ARABIC = true;
-            if (ARABIC) commentList = await comment.scrap("rtl");
+            var comments = "";
+            const ARABIC = false;
+            if (ARABIC) comments = await comment.scrap("rtl");
             else {
               comment.translate();
-              commentList = await comment.scrap("ltr");
+              comments = await comment.scrap("ltr");
             }
 
             postList.push({
+              post_id: postCounter,
               post: await post.scrap(),
-              author: await post.getAuthor(),
-              commentList: commentList
+              author: await post.getAuthor()
             });
-            console.log("Data now ====> ", postList);
+
+            if (comments.length > 0) commentList.push(comments);
+
+            console.log("Data now ====> ", {
+              posts: postList,
+              comments: commentList
+            });
             post.delete();
             setTimeout(() => window.scrollBy(0, 100), 1000);
             //Detertmine the number of posts you need (10)
-            if (postList.length < 50) await scrapData();
+            if (postList.length < 10) await scrapData();
             //if(postListLength*1) -> this will continue till end
-            else return postList;
+            else{
+              return {
+                posts: postList,
+                comments: commentList
+              };
+            }
           } else {
             console.log("postList if no post found ==> ", postList);
-            return postList;
+            return {
+              posts: postList,
+              comments: commentList
+            };
           }
         } catch (error) {
           console.error("error from scrapDataFunction ==>", error);
@@ -223,13 +250,22 @@ const DELAY_PW_INPUT = 500;
         }
       }
       await scrapData();
-      return await Promise.all(postList);
+      return {
+        posts: postList,
+        comments: commentList
+      };
+      //return "hello";
     });
 
     //Choosing which file to store data in
-    const ARABIC = true;
-    if (ARABIC) await storeDataToFile("./fbArabic.json", data);
-    else await storeDataToFile("./fb.json", data);
+    const ARABIC = false;
+    if (ARABIC) {
+      await storeDataInJSON("./postsArabic.json", data["posts"]);
+      await storeDataInJSON("./commentsArabic.json", data["comments"]);
+    } else {
+      await storeDataInJSON("./postsEnglish.json", data["posts"]);
+      await storeDataInJSON("./commentsEnglish.json", data["comments"]);
+    }
   } catch (error) {
     console.log("Catched error message", error.message);
     console.log("Catched error stack", error.stack);
@@ -238,7 +274,7 @@ const DELAY_PW_INPUT = 500;
 })();
 
 //Storig data into json file
-const storeDataToFile = async function(file, data) {
+const storeDataInJSON = async function(file, data) {
   console.log(data);
   return fs.writeFileSync(file, JSON.stringify(data), err => {
     if (err) {
@@ -246,6 +282,24 @@ const storeDataToFile = async function(file, data) {
     }
     return;
   });
+};
+
+const storeDataInCSV = (myData, postsWorkbook, commentsWorkbook) => {
+  const fields = ["field1", "field2", "field3"];
+  const opts = { fields };
+  try {
+    const parser = new Parser(opts);
+    const csv = parser.parse(myData);
+    console.log(csv);
+    return fs.writeFileSync(file, JSON.stringify(data), err => {
+      if (err) {
+        return err;
+      }
+      return;
+    });
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 function delay(time) {

@@ -20,6 +20,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "json-2-csv": "^3.7.7",
+    "json2csv": "^5.0.3",
     "nodemon": "^2.0.4",
     "puppeteer": "^5.3.1"
   }
