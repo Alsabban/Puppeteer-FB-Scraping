@@ -12,7 +12,7 @@ FB_PW="The Facebook account password"
 ```
 To Choose the data language: <br />
 
-1. Change the boolean variable(ARABIC) to (True or False) in index.js at lines (210,261)
+1. Change the boolean variable(ARABIC) to (True or False) in index.js at lines (218,269)
 
 2. Go to Facebook Settings
 ```
