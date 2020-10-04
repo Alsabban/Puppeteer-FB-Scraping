@@ -108,11 +108,17 @@ const DELAY_PW_INPUT = 500;
               try {
                 return new Promise(resolve => {
                   setTimeout(() => {
-                    return resolve(
-                      this.post
-                        .querySelector('div[data-testid="post_message"')
-                        .innerText.trim()
-                    );
+                    if( this.post
+                      .querySelector('div[data-testid="post_message"') === null){
+                        return resolve("");
+                      }
+                    else{
+                      return resolve(
+                        this.post
+                          .querySelector('div[data-testid="post_message"')
+                          .innerText.trim()
+                      );
+                    }
                   }, 1000);
                 });
               } catch (error) {
@@ -209,7 +215,7 @@ const DELAY_PW_INPUT = 500;
             comment = new Comment(post);
             //Pushing the post, author and the comments list
             var comments = "";
-            const ARABIC = false;
+            const ARABIC = true;
             if (ARABIC) comments = await comment.scrap("rtl");
             else {
               comment.translate();
@@ -231,7 +237,7 @@ const DELAY_PW_INPUT = 500;
             post.delete();
             setTimeout(() => window.scrollBy(0, 100), 1000);
             //Detertmine the number of posts you need (10)
-            if (postList.length < 10) await scrapData();
+            if (postList.length < 200) await scrapData();
             //if(postListLength*1) -> this will continue till end
             else {
               return {
@@ -260,7 +266,7 @@ const DELAY_PW_INPUT = 500;
     });
 
     //Choosing which file to store data in
-    const ARABIC = false;
+    const ARABIC = true;
     if (ARABIC) {
       await storeDataInJSON("./postsArabic.json", data["posts"]);
       await storeDataInJSON("./commentsArabic.json", data["comments"]);
