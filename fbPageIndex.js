@@ -20,8 +20,8 @@ const DELAY_PW_INPUT = 500;
     await context.overridePermissions(process.env.FB_PAGE, ["notifications"]);
     const page = await browser.newPage();
     await page.goto(process.env.FB_PAGE);
-    await delay(WAIT_FOR_PAGE);
-    //Closing popup Dialog
+   await delay(WAIT_FOR_PAGE);
+    // //Closing popup Dialog
     if ((await page.$('div[role="dialog"]')) !== null) {
       await page.waitForSelector('div[role="dialog"]');
       await page.click('div[role="button"]');
@@ -29,15 +29,18 @@ const DELAY_PW_INPUT = 500;
     //Login by entering email and password
     await page.waitForSelector('input[name="email"]');
     await page.type('input[name="email"]', process.env.FB_USER, {
-      delay: DELAY_USER_INPUT
+     delay: DELAY_USER_INPUT
     });
     await page.type('input[name="pass"]', process.env.FB_PW, {
-      delay: DELAY_PW_INPUT
+     delay: DELAY_PW_INPUT
     });
-    await page.click('div[aria-label="Accessible login button"]');
+
+    await page.click('button[id="loginbutton"]');
+   await delay(WAIT_FOR_PAGE);
+    //await page.click('a[data-endpoint="/alsafwaa/posts/?ref=page_internal"]');
     
     //Wait for redirect to the group after login
-    await page.waitForNavigation(".userContentWrapper");
+   await page.waitForNavigation('div[data-ad-preview="message"]');
     await delay(WAIT_FOR_PAGE);
 
     //The Process of Retrieving Data
@@ -52,7 +55,7 @@ const DELAY_PW_INPUT = 500;
         try {
           // Detecting the number of the posts loaded on the browser
           const postListLength = document.querySelectorAll(
-            ".userContentWrapper"
+            'div[data-ad-preview="message"]'
           ).length;
           console.log("postListLength ", postListLength);
 
@@ -62,7 +65,7 @@ const DELAY_PW_INPUT = 500;
             constructor(document) {
               console.log("post initiallized");
               this.document = document;
-              this.post = document.querySelector(".userContentWrapper");
+              this.post = document.querySelector('div[data-ad-preview="message"]');
             }
 
             //Click See More to get the full post text
@@ -110,14 +113,15 @@ const DELAY_PW_INPUT = 500;
                 return new Promise(resolve => {
                   setTimeout(() => {
                     if( this.post
-                      .querySelector('div[data-testid="post_message"') === null){
+                      .querySelector('div[data-ad-preview="message"]') === null){
                         return resolve("");
                       }
                     else{
                       return resolve(
-                        this.post
-                          .querySelector('div[data-testid="post_message"')
-                          .innerText.trim()
+                        // this.post
+                        //   .querySelector('div[data-ad-preview="message"]')
+                        //   .innerText.trim()
+                          this.post.innerText.trim()
                       );
                     }
                   }, 1000);
@@ -143,7 +147,8 @@ const DELAY_PW_INPUT = 500;
               var i;
               //Loading all previous comments amd see more comments
               for (i = 0; i < 100; i++) {
-                if (this.comment !== null) this.comment.click();
+                if (this.comment !== null){
+                  this.comment.click();}
                 else {
                   i = 0;
                   break;
@@ -211,46 +216,44 @@ const DELAY_PW_INPUT = 500;
           if (post.post) {
             postCounter++;
             //Click Seemore to get full text of post
-            await post.PressSeeMore();
+            //await post.PressSeeMore();
             //Initiallizing Comment
-            comment = new Comment(post);
+            //comment = new Comment(post);
             //Pushing the post, author and the comments list
-            var comments = "";
+           // var comments = "";
             const ARABIC = true;
-            if (ARABIC) comments = await comment.scrap("rtl");
-            else {
-              comment.translate();
-              comments = await comment.scrap("ltr");
-            }
-
             postList.push({
               post_id: postCounter,
-              post: await post.scrap(),
-              author: await post.getAuthor()
+              post: await post.scrap()
+             // author: await post.getAuthor()
             });
-
-            if (comments.length > 0) commentList.push(comments);
+            // if (ARABIC) comments = await comment.scrap("rtl");
+            // else {
+            //   comment.translate();
+            //   comments = await comment.scrap("ltr");
+            // }
+            // if (comments.length > 0) commentList.push(comments);
 
             console.log("Data now ====> ", {
               posts: postList,
-              comments: commentList
+             // comments: commentList
             });
             post.delete();
-            setTimeout(() => window.scrollBy(0, 100), 1000);
+            setTimeout(() => window.scrollBy(0, 2000), 100); //100  1000
             //Detertmine the number of posts you need (10)
-            if (postList.length < 200) await scrapData();
+            if (postList.length < 4) await scrapData();
             //if(postListLength*1) -> this will continue till end
             else {
               return {
                 posts: postList,
-                comments: commentList
+               // comments: commentList
               };
             }
           } else {
             console.log("postList if no post found ==> ", postList);
             return {
               posts: postList,
-              comments: commentList
+             // comments: commentList
             };
           }
         } catch (error) {
@@ -261,7 +264,7 @@ const DELAY_PW_INPUT = 500;
       await scrapData();
       return {
         posts: postList,
-        comments: commentList
+       // comments: commentList
       };
       //return "hello";
     });
@@ -269,8 +272,8 @@ const DELAY_PW_INPUT = 500;
     //Choosing which file to store data in
     const ARABIC = true;
     if (ARABIC) {
-      await storeDataInJSON("./postsArabic.json", data["posts"]);
-      await storeDataInJSON("./commentsArabic.json", data["comments"]);
+      await storeDataInJSON("./EducationNews.json", data["posts"]);
+      //await storeDataInJSON("./commentsArabic.json", data["comments"]);
     } else {
       await storeDataInJSON("./postsEnglish.json", data["posts"]);
       await storeDataInJSON("./commentsEnglish.json", data["comments"]);
