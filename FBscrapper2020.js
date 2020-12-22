@@ -18,12 +18,12 @@ const DELAY_INPUT = 1;
     });
     const context = browser.defaultBrowserContext();
     await context.overridePermissions(process.env.FB_LOGIN, ["notifications"]);
-    
+
     //Opening the Facebook Login
     const page = await browser.newPage({ viewport: null });
     await page.goto(process.env.FB_LOGIN);
     await delay(WAIT_FOR_PAGE);
-    
+
     //logging in
     await page.waitForSelector('input[name="email"]');
     await page.type('input[name="email"]', process.env.FB_USER, {
@@ -34,7 +34,7 @@ const DELAY_INPUT = 1;
     });
     await Promise.all([
       await page.click('button[data-testid="royal_login_button"]'),
-      page.waitForNavigation({ waitUntil: 'networkidle0' })
+      page.waitForNavigation({ waitUntil: "networkidle0" }),
     ]);
     //await page.click('button[data-testid="royal_login_button"]');
     //await delay(5*WAIT_FOR_PAGE);
@@ -46,12 +46,14 @@ const DELAY_INPUT = 1;
     //scraping function
     const posts = await page.evaluate(async () => {
       let posts = [],
-      postcounter = 0,
-      NUMBER_OF_POSTS = 1;
+        postcounter = 0,
+        NUMBER_OF_POSTS = 50;
       class Post {
         constructor(document) {
           //this.document = document;
-          this.postdata = document.querySelector('div[data-ad-preview="message"]'); //getting post
+          this.postdata = document.querySelector(
+            'div[data-ad-preview="message"]'
+          ); //getting post
         }
         getpostfeatures() {
           try {
@@ -76,19 +78,24 @@ const DELAY_INPUT = 1;
           this.postdata.remove();
         }
       } //end of post class
+      
       try {
-        while (postcounter < NUMBER_OF_POSTS) {
+        setTimeout(() => window.scrollBy(0, 2000), 500);
+        for (postcounter; postcounter < NUMBER_OF_POSTS; postcounter++) {
           const post = new Post(document);
           if (post.postdata) {
-            postcounter++;
             let mydata = await post.getpostfeatures();
             posts.push({
               post_id: postcounter,
-              post: mydata
+              post: mydata,
             });
             console.log(mydata);
             post.removepost();
-          }
+            setTimeout(() => window.scrollBy(0, 2000), 100);
+          } /*else {
+            console.log("no new posts found");
+            return posts;
+          }*/
         }
       } catch (error) {
         console.error("error while getting newspage!!", error);
@@ -97,6 +104,8 @@ const DELAY_INPUT = 1;
     });
     //storing the posts we scraped in a json file
     storeDataInJSON("./EducationNews.json", posts);
+
+    //closing the browser
     await browser.close();
   } catch (error) {
     console.log("Catched error message", error.message);
@@ -119,5 +128,24 @@ const storeDataInJSON = async function (file, data) {
 function delay(time) {
   return new Promise(function (resolve) {
     setTimeout(resolve, time);
+  });
+}
+
+async function autoScroll(page) {
+  await page.evaluate(async () => {
+    await new Promise((resolve, reject) => {
+      var totalHeight = 0;
+      var distance = 100;
+      var timer = setInterval(() => {
+        var scrollHeight = document.body.scrollHeight;
+        window.scrollBy(0, distance);
+        totalHeight += distance;
+
+        if (totalHeight >= scrollHeight) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 100);
+    });
   });
 }
