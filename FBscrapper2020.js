@@ -42,71 +42,110 @@ const DELAY_INPUT = 1;
     //Opening the Facebook Group
     await page.goto(process.env.FB_PAGE);
     await delay(WAIT_FOR_PAGE);
+    
 
     //scraping function
     const posts = await page.evaluate(async () => {
-      let posts = [],
-        postcounter = 0,
-        NUMBER_OF_POSTS = 50;
-      class Post {
-        constructor(document) {
-          //this.document = document;
-          this.postdata = document.querySelector(
-            'div[data-ad-preview="message"]'
-          ); //getting post
+      let posts = [];
+      var postcounter = 0;
+      let NUMBER_OF_POSTS = 50;
+        //Scraping Data Function
+      window.scrollBy(0, window.innerHeight*10);
+      function delay(time) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, time);
+        });
+      }      
+      await delay(1000);
+      async function scrapData() {
+        try {
+          window.scrollBy(0, window.innerHeight*10);
+      function delay(time) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, time);
+        });
+      }      
+      await delay(2000);
+           // Detecting the number of the posts loaded on the browser
+           const postListLength = document.querySelectorAll(
+           'div[data-ad-preview="message"]'
+          //  '#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.l9j0dhe7.dp1hu0rb.cbu4d94t.j83agx80 > div.bp9cbjyn.j83agx80.cbu4d94t.d2edcug0 > div.rq0escxv.d2edcug0.ecyo15nh.hv4rvrfc.dati1w0a.cxgpxx05 > div > div.rq0escxv.l9j0dhe7.du4w35lb.qmfd67dx.hpfvmrgz.gile2uim.buofh1pr.g5gj957u.aov4n071.oi9244e8.bi6gxh9e.h676nmdw.aghb5jc5 > div > div > div > div'
+          ).length;
+          console.log("postListLength ", postListLength);
+          class Post {
+            constructor(document) {
+              console.log("post initiallized");
+              this.document = document;
+              this.postdata = document.querySelector(
+                'div[data-ad-preview="message"]'
+                // '#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.l9j0dhe7.dp1hu0rb.cbu4d94t.j83agx80 > div.bp9cbjyn.j83agx80.cbu4d94t.d2edcug0 > div.rq0escxv.d2edcug0.ecyo15nh.hv4rvrfc.dati1w0a.cxgpxx05 > div > div.rq0escxv.l9j0dhe7.du4w35lb.qmfd67dx.hpfvmrgz.gile2uim.buofh1pr.g5gj957u.aov4n071.oi9244e8.bi6gxh9e.h676nmdw.aghb5jc5 > div > div > div > div'
+              ); //getting post
+            }
+            getpostfeatures() {
+              try {
+                return new Promise((resolve) => {
+                  //gettin the features we are intrested in from the post
+                  setTimeout(() => {
+                    if (this.postdata.querySelector("span") === null) {
+                      return resolve("");
+                    } else {
+                      return resolve(
+                        this.postdata.querySelector("span").innerText.trim()
+                      );
+                    }
+                  }, 0);
+                });
+              } catch (error) {
+                console.log("scrap post error ===> ", error);
+              }
+            }
+            //to remove the post
+            removepost() {
+              this.postdata.remove();
+            }
+          } //end of post class
+          
+            const post = new Post(document);
+              if (post.postdata) {
+                postcounter++;
+                let mydata = await post.getpostfeatures();
+                posts.push({
+                  post_id: postcounter,
+                  post: mydata,
+                });
+                console.log(mydata);
+                post.removepost();
+                if(posts.length<2) await scrapData();
+              else {
+                return {
+                  posts: posts
+                };
+              }
+              } 
+              else {
+                console.log("postList if no post found ==> ", posts);
+                return {
+                  posts: posts
+                };
+              }
+              
         }
-        getpostfeatures() {
-          try {
-            return new Promise((resolve) => {
-              //gettin the features we are intrested in from the post
-              setTimeout(() => {
-                if (this.postdata.querySelector("span") === null) {
-                  return resolve("");
-                } else {
-                  return resolve(
-                    this.postdata.querySelector("span").innerText.trim()
-                  );
-                }
-              }, 0);
-            });
-          } catch (error) {
-            console.log("scrap post error ===> ", error);
-          }
+        catch (error) {
+          console.error("error from scrapDataFunction ==>", error);
+          debugger;
         }
-        //to remove the post
-        removepost() {
-          this.postdata.remove();
-        }
-      } //end of post class
-      
-      try {
-        setTimeout(() => window.scrollBy(0, 2000), 500);
-        for (postcounter; postcounter < NUMBER_OF_POSTS; postcounter++) {
-          const post = new Post(document);
-          if (post.postdata) {
-            let mydata = await post.getpostfeatures();
-            posts.push({
-              post_id: postcounter,
-              post: mydata,
-            });
-            console.log(mydata);
-            post.removepost();
-            setTimeout(() => window.scrollBy(0, 2000), 100);
-          } /*else {
-            console.log("no new posts found");
-            return posts;
-          }*/
-        }
-      } catch (error) {
-        console.error("error while getting newspage!!", error);
       }
-      return posts;
+        
+      await scrapData();
+      return {
+        posts: posts
+      };
     });
     //storing the posts we scraped in a json file
-    storeDataInJSON("./EducationNews.json", posts);
+    storeDataInJSON("./EducationTestNews.json", posts["posts"]);
 
     //closing the browser
-    await browser.close();
+    //await browser.close();
   } catch (error) {
     console.log("Catched error message", error.message);
     console.log("Catched error stack", error.stack);
@@ -131,21 +170,4 @@ function delay(time) {
   });
 }
 
-async function autoScroll(page) {
-  await page.evaluate(async () => {
-    await new Promise((resolve, reject) => {
-      var totalHeight = 0;
-      var distance = 100;
-      var timer = setInterval(() => {
-        var scrollHeight = document.body.scrollHeight;
-        window.scrollBy(0, distance);
-        totalHeight += distance;
 
-        if (totalHeight >= scrollHeight) {
-          clearInterval(timer);
-          resolve();
-        }
-      }, 100);
-    });
-  });
-}
