@@ -1,8 +1,9 @@
 //Imports
 const puppeteer = require("puppeteer");
-const calculateDate = require("./DateScrapper")
+
 
 (async () => {
+  const calculateDate = require("./DateFormatter")
   args = process.argv;
   //console.log(args);
   let permalink = args[2];
@@ -58,6 +59,7 @@ const calculateDate = require("./DateScrapper")
       // post["date"] = date;
       return date;
     });
+    console.log(postfeatures)
     var date = await calculateDate(postfeatures);
     console.log(date);
 
