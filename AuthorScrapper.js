@@ -1,11 +1,10 @@
 //Imports
 const puppeteer = require("puppeteer");
 
-const DateScrapper = async permalink => {
-  const calculateDate = require("./DateFormatter");
-
+const AuthorScrapper = async permalink => {
   try {
     //starting Chrome
+
     const browser = await puppeteer.launch({
       executablePath: process.env.CHROME_PATH,
       headless: true
@@ -19,20 +18,31 @@ const DateScrapper = async permalink => {
     await delay(2000);
 
     const postfeatures = await page.evaluate(() => {
-      container = document.querySelector("#page");
+      let owner = {};
 
-      date = document.querySelector("abbr").innerText;
-      date = date;
+      // let verified = document.querySelector('i[aria-label="Verified Account"]');
+      let verified = document.querySelector("a._56_f._5dzy._5d-1._3twv._33v-");
+      console.log(verified);
+      if (verified) owner["verified"] = true;
+      else owner["verified"] = false;
 
-      return date;
+      //   let followers = document.querySelector('span.d2edcug0.hpfvmrgz.qv66sw1b.c1et5uql.lr9zc1uh.jq4qci2q.a3bd9o3v.knj5qynh.oo9gr5id').innerText.split(" ")[0];
+
+      let followers = document
+        .querySelector(
+          "#PagesProfileHomeSecondaryColumnPagelet > div > div:nth-child(1) > div > div._4-u2._6590._3xaf._4-u8 > div:nth-child(3) > div > div._4bl9 > div"
+        )
+        .innerText.split(" ")[0];
+
+      owner["followers"] = followers;
+
+      return owner;
     });
-    console.log(postfeatures);
-    var date = await calculateDate(postfeatures);
 
     //closing the browser
     await browser.close();
 
-    return date;
+    return postfeatures;
   } catch (error) {
     console.log("Catched error message", error.message);
     console.log("Catched error stack", error.stack);
@@ -46,4 +56,4 @@ function delay(time) {
   });
 }
 
-module.exports = DateScrapper;
+module.exports = AuthorScrapper;

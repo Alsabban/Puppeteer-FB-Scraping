@@ -1,16 +1,15 @@
-
 const calculateDate = dateScrapped => {
   var dateCalculated = new Date();
 
-  dateWords = dateScrapped.split(" ")
+  dateWords = dateScrapped.split(" ");
 
   if (dateScrapped.includes("now")) {
     return dateCalculated.toLocaleString();
-  } else if (dateScrapped.includes("min")) {
+  } else if (dateScrapped.includes("min") || dateScrapped.includes("minute")) {
     var mins = dateScrapped.substr(0, dateScrapped.indexOf(" "));
     dateCalculated.setMinutes(dateCalculated.getMinutes() - mins);
     return dateCalculated.toLocaleString();
-  } else if (dateScrapped.includes("hr")) {
+  } else if (dateScrapped.includes("hr") || dateScrapped.includes("hour")) {
     var hours = dateScrapped.substr(0, dateScrapped.indexOf(" "));
     dateCalculated.setHours(dateCalculated.getHours() - hours);
     return dateCalculated.toLocaleString();
@@ -68,7 +67,13 @@ const calculateDate = dateScrapped => {
     var hours = date[4].split(":")[0];
     var mins = date[4].split(":")[1];
 
-    var result = new Date(year, (month.length > 3) ? months.indexOf(month):shortMonths.indexOf(month), day, hours, mins);
+    var result = new Date(
+      year,
+      month.length > 3 ? months.indexOf(month) : shortMonths.indexOf(month),
+      day,
+      hours,
+      mins
+    );
 
     return result.toLocaleString();
   } else {
@@ -112,15 +117,14 @@ const calculateDate = dateScrapped => {
 
     var result = new Date(
       dateCalculated.getFullYear(),
-      (month.length > 3) ? months.indexOf(month):shortMonths.indexOf(month),
+      month.length > 3 ? months.indexOf(month) : shortMonths.indexOf(month),
       day,
       hours,
       mins
     );
-    
+
     return result.toLocaleString();
   }
 };
-
 
 module.exports = calculateDate;
