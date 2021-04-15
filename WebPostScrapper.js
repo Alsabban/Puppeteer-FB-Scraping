@@ -49,7 +49,6 @@ const DELAY_INPUT = 1;
 
     const postfeatures = await page.evaluate(() => {
       post = {};
-
       container = document.querySelector('div[data-pagelet="root"]');
       console.log(container);
       author = document.querySelector(
@@ -78,8 +77,6 @@ const DELAY_INPUT = 1;
         "div.bp9cbjyn.j83agx80.pfnyh3mw.p1ueia1e"
       );
 
-      console.log(commsAndShares);
-
       if (commsAndShares.innerText !== "") {
         commsAndShares = commsAndShares.innerText;
         if(commsAndShares.includes("\n")){
@@ -90,7 +87,7 @@ const DELAY_INPUT = 1;
 
         else if(commsAndShares.includes("comm")){
           comments = commsAndShares[0].split(" c")[0];
-          shares = "0"
+          shares = "0";
         }
         else {
           comments = "0";
@@ -138,7 +135,7 @@ const DELAY_INPUT = 1;
     storeDataInJSON("./postScrapped.json", post);
 
     //closing the browser
-    await browser.close();
+    //await browser.close();
   } catch (error) {
     console.log("Catched error message", error.message);
     console.log("Catched error stack", error.stack);

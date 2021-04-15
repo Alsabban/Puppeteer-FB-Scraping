@@ -112,8 +112,14 @@ const calculateDate = dateScrapped => {
     var date = dateScrapped.split(" ");
     var day = date[0];
     var month = date[1];
-    var hours = date[3].split(":")[0];
-    var mins = date[3].split(":")[1];
+    if(date[3]){
+      var hours = date[3].split(":")[0];
+      var mins = date[3].split(":")[1];
+    }
+    else{
+      var hours = "0";
+      var mins = "0";
+    }
 
     var result = new Date(
       dateCalculated.getFullYear(),

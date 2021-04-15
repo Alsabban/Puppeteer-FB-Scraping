@@ -19,14 +19,11 @@ const DateScrapper = async permalink => {
     await delay(2000);
 
     const postfeatures = await page.evaluate(() => {
-      container = document.querySelector("#page");
-
       date = document.querySelector("abbr").innerText;
       date = date;
 
       return date;
     });
-    console.log(postfeatures);
     var date = await calculateDate(postfeatures);
 
     //closing the browser
