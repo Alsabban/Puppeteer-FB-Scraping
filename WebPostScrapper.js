@@ -51,6 +51,7 @@ const DELAY_INPUT = 1;
       post = {};
 
       container = document.querySelector('div[data-pagelet="root"]');
+      console.log(container);
       author = document.querySelector(
         "a.oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.nhd2j8a9.nc684nl6.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.rz4wbd8a.qt6c0cv9.a8nywdso.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.oo9gr5id.gpro0wi8.lrazzd5p"
       ).innerText;
@@ -62,17 +63,44 @@ const DELAY_INPUT = 1;
       } else {
         text = "";
       }
+
       likes = container.querySelector(
         "span.bzsjyuwj.ni8dbmo4.stjgntxs.ltmttdrg.gjzvkazv"
-      ).innerText;
+      );
+
+      if (likes) {
+        likes = likes.innerText;
+      } else {
+        likes = "0";
+      }
+
       commsAndShares = container.querySelector(
         "div.bp9cbjyn.j83agx80.pfnyh3mw.p1ueia1e"
-      ).innerText;
+      );
 
-      commsAndShares = commsAndShares.split("\n");
+      console.log(commsAndShares);
 
-      comments = commsAndShares[0].split(" c")[0];
-      shares = commsAndShares[1].split(" s")[0];
+      if (commsAndShares.innerText !== "") {
+        commsAndShares = commsAndShares.innerText;
+        if(commsAndShares.includes("\n")){
+          commsAndShares = commsAndShares.split("\n");
+          comments = commsAndShares[0].split(" c")[0];
+          shares = commsAndShares[1].split(" s")[0];
+        }
+
+        else if(commsAndShares.includes("comm")){
+          comments = commsAndShares[0].split(" c")[0];
+          shares = "0"
+        }
+        else {
+          comments = "0";
+          shares = commsAndShares[0].split(" s")[0];
+        }
+        
+      } else {
+        comments = "0";
+        shares = "0";
+      }
 
       post["author"] = author;
       post["text"] = text;
@@ -80,8 +108,11 @@ const DELAY_INPUT = 1;
       post["shares"] = shares;
       post["comments"] = comments;
 
+      
+
       return post;
     });
+
 
     const post = postfeatures;
 
@@ -89,9 +120,9 @@ const DELAY_INPUT = 1;
 
     authorLink = await authorLink.split("/");
 
-    authorLink = await "https://" + authorLink[0] + "/" + authorLink[1]+"/";
+    authorLink = (await "https://") + authorLink[0] + "/" + authorLink[1] + "/";
 
-    console.log(authorLink)
+    console.log(authorLink);
 
     const owner = await AuthorScrapper(authorLink);
 
