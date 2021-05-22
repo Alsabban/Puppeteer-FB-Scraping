@@ -105,8 +105,6 @@ const DELAY_INPUT = 1;
       post["shares"] = shares;
       post["comments"] = comments;
 
-      
-
       return post;
     });
 

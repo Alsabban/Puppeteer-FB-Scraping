@@ -20,8 +20,6 @@ const DateScrapper = async permalink => {
 
     const postfeatures = await page.evaluate(() => {
       date = document.querySelector("abbr").innerText;
-      date = date;
-
       return date;
     });
     var date = await calculateDate(postfeatures);
