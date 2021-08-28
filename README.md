@@ -24,7 +24,7 @@ To Choose the data language: <br />
 
 now you're all set. <br />
 
-npm start <br />
+node FullScrapper.js <br />
 
 ## Outputs:
 ### commentsArabic.json 
